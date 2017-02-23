@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.tang.MtoM">
+
+ <class name="Dep" table="dep">
+ 
+  <id name="depId">
+   <generator class="native"></generator>
+  </id>
+  
+  <property name="depName" length="28" type="string"></property>
+  
+  <!-- 'CREATE TABLE `dep` (  `depId` int(11) NOT NULL AUTO_INCREMENT,
+   `depName` varchar(28) DEFAULT NULL,
+     PRIMARY KEY (`depId`))
+      ENGINE=InnoDB DEFAULT CHARSET=utf8'
+   -->
+   
+   <!-- 'CREATE TABLE `relation` (  `did` int(11) NOT NULL,
+     `pid` int(11) NOT NULL,  PRIMARY KEY (`pid`,`did`), 
+     KEY `FKDEF3F9FCB6CE3720` (`did`),  KEY `FKDEF3F9FCB6CE92CA` (`pid`), 
+     CONSTRAINT `FKDEF3F9FCB6CE3720` FOREIGN KEY (`did`) REFERENCES `dep` (`depId`),  
+     CONSTRAINT `FKDEF3F9FCB6CE92CA` FOREIGN KEY (`pid`) REFERENCES `pro` (`proId`)\n) 
+     ENGINE=InnoDB DEFAULT CHARSET=utf8'
+    -->
+  
+  <set name="pros" table="relation">
+   <key column="did"></key>
+   <many-to-many column="pid" class="Pro"></many-to-many>
+  </set>
+ </class>
+ 
+</hibernate-mapping>

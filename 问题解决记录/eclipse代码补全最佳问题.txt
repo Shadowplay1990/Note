@@ -1,0 +1,19 @@
+解决方法：
+一、对于eclipse：
+1、先找到相关的插件：window ->show view ->plug-ins 找到插件org.eclipse.jface.text，右键点击，选择import as Source Project，导入完成后,在你的workspace就可以看到这个工程了；
+
+2.修改代码：在src/org/eclipse/jface/text/contentassist/CompletionProposalPopup.Java文件中，找到如下这样的代码 ：char[] triggers = t.getTriggerCharacter(); 
+if(contains(triggers,key)){
+..................
+}
+        在那行if判断里面，eclipse会判断key(就是你按下的键)是否在triggers中，如果是，那就触发下面的第一行提示上屏的代码。所以我们要做的就是把空格和=号排除就可以了: if(key != '=' && key != 0x20 &&contains(triggers,key)){...........}
+        代码修改成这样后，当有提示的时候，我们再按下空格或者等号，提示就不会自动补全了咯！！！
+
+3.把修改好的org.eclipse.jface.text导出：右键点击你的workspace里的org.eclipse.jface.text，选择export-->Deployable plugins andfragments -> next -> destination ，选择archive file，名字随便取，然后finish。你就可以在导出的zip文件里看到生成好的jar包，用它替换掉eclipse/plugins里面的同名jar包就可以了。
+
+二、对于MyEclipse：
+        但是在MyEclipse中同上述eclipse的步骤1导入完成后，在工程文件里是没有src/这个文件夹的：
+        这里我们的解决办法是：去官网下载MyEclipse对应的eclipse版本，然后在eclipse中修改（方法同上）,修改后在生成好的zip压缩文件中可以看到生成修改后的jar包，用它替换掉MyEclipse/Common/plugins里面的同名jar包就可以了。
+        注意：这里我们如何看MyEclipse对应的eclipse版本？
+        举个栗子：我在我的MyEclipse中找到org.eclipse.jface.text的jar包后面会跟一串数字，
+        如org.eclipse.jface.text_3.6.1.r361_v20100825-0800.jar，这个数字3.6就是说我的MyEclipse对应eclipse 3.6版本。

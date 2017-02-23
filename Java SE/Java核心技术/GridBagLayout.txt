@@ -1,0 +1,165 @@
+GridBagLayout是一个灵活的布局管理器，部件如果想加入其中需借助GridBagConstraints，其中有若干个参数，解释如下：
+
+gridx/gridy：组件的横纵坐标
+
+gridwidth：组件所占列数，也是组件的宽度
+
+gridheight：组件所占行数，也是组件的高度
+
+fill：当组件在其格内而不能撑满其格时，通过 fill的值来设定填充方式，有四个值
+
+ipadx： 组件间的横向间距
+
+ipady：组件间的纵向间距
+
+insets：当组件不能填满其格时，通过 insets来指定四周（即上下左右）所留空隙
+
+anchor：同样是当组件不能填满其格时，通过 anchor来设置组件的位置，anchor有两种值，绝对和相对的值分别有 若干个，文档中有，可自行查看
+
+weightx：行的权重，通过这个属性来决定如何分配行的剩余空间
+
+weighty：列的权重，通过这个属性来决定如何分配列的剩余空间
+
+ 
+
+ 
+
+
+1.要明确一点概念：每个 GridBagLayout 对象维持一个动态的矩形单元网格，每个组件占用一个或多个这样的单元，称为显示区域。
+网格的总体方向取决于容器的 ComponentOrientation 属性。对于水平的从左到右的方向，网格坐标 (0,0) 位于容器的左上角，其中 X 向右递增，Y 向下递增。
+
+2.要使用GidBagLayout要先定义一个GridBagConstraints对象。
+Java API说明如下：“每个由 GridBagLayout 管理的组件都与 GridBagConstraints 的实例相关联。Constraints 对象指定组件在网格中的显示区域以及组件在其显示区域中的放置方式。”
+例如，如下几行代码就可以添加其它组件：
+         GridBagLayout gridbag = new GridBagLayout();
+         GridBagConstraints c = new GridBagConstraints();
+         JFrame   f=new JFrame();
+         f.setLayout(gridbag);
+         Button button = new Button(name);
+         gridbag.setConstraints(button, c);
+         f.add(jButton);
+
+3.为了有效使用网格包布局，必须自定义与组件相关联的一个或多个 GridBagConstraints 对象。
+即须设置GridBagConstraints 对象的属性。我认为只要能掌握以下四种参数就能很好的使用GidBagLayout：
+（1）GridBagConstraints.gridwidthGridBagConstraints.gridheight
+    指定组件的显示区域行（针对 gridwidth）或列（针对 gridheight）中的单元数。默认值为 1。如下向窗口中添加一个占两个单元格（两行一列）的按钮的例子：
+         JFrame   f=new JFrame();
+         GridBagLayout gridbag = new GridBagLayout();
+         GridBagConstraints c = new GridBagConstraints();
+         f.setLayout(gridbag);
+         c.gridheight=2;
+         c.gridwidth=1;
+         JButton jButton = new JButton("按钮1");
+         gridbag.setConstraints(button, c);
+         f.add(jButton);
+（2）GridBagConstraints.fill 
+    当组件的显示区域大于组件的所需大小时，用于确定是否（以及如何）调整组件。
+    可能的值为 GridBagConstraints.NONE（默认值）、
+              GridBagConstraints.HORIZONTAL（加宽组件直到它足以在水平方向上填满其显示区域，但不更改其高度）、               
+
+              GridBagConstraints.VERTICAL（加高组件直到它足以在垂直方向上填满其显示区域，但不更改其宽度）和                  
+
+            GridBagConstraints.BOTH（使组件完全填满其显示区域）。 
+    使用情景举例：在一个很大的窗口（如300*300）中添加一个按钮（原始大小40*30）。
+
+（3）GridBagConstraints.anchor 
+    当组件小于其显示区域时，用于确定将组件置于何处（在显示区域中）。可能的值有两种：相对和绝对。相对值的解释是相对于容器的ComponentOrientation 属性，而绝对值则不然。个人觉得只使用绝对值就可以。有效值有：
+    绝对值
+    GridBagConstraints.NORTH 
+    GridBagConstraints.SOUTH 
+    GridBagConstraints.WEST 
+    GridBagConstraints.EAST 
+    GridBagConstraints.NORTHWEST 
+    GridBagConstraints.NORTHEAST 
+    GridBagConstraints.SOUTHWEST 
+    GridBagConstraints.SOUTHEAST 
+    GridBagConstraints.CENTER (the default) 
+
+（4）GridBagConstraints.weightx、GridBagConstraints.weighty   （************最重要的属性） 
+用于确定分布空间的方式，这对于指定调整行为至关重要。例如：在一个很大的窗口（如300*300）中添加两个按钮（也可以是面板）（原始大小 40*30），默认的，你会发现两个按钮分别处于上下两个等大小的区域中，且只占用了一小部分，没有被按钮占用的区域就被称为额外区域。该额外区域会随着参数weightx、weighty而被分配。
+
+
+   完整的示例代码如下：
+
+import javax.swing.*;
+import Java.util.*;
+import java.awt.*;
+
+public class Example{
+
+     public Example() {
+     }
+
+     public static void main(String args[]) {
+        JFrame f = new JFrame("GridBag Layout Example");
+
+        GridBagLayout gridbag = new GridBagLayout();
+        GridBagConstraints c = new GridBagConstraints();
+        f.setLayout(gridbag);
+//添加按钮1
+        c.fill = GridBagConstraints.BOTH;
+        c.gridheight=2;
+        c.gridwidth=1;
+        c.weightx=0.0;//默认值为0.0
+        c.weighty=0.0;//默认值为0.0
+        c.anchor=GridBagConstraints.SOUTHWEST;
+        JButton jButton1 = new JButton("按钮1");
+        gridbag.setConstraints(jButton1, c);
+        f.add(jButton1);
+//添加按钮2        
+        c.fill = GridBagConstraints.NONE;
+        c.gridwidth=GridBagConstraints.REMAINDER;
+        c.gridheight=1;
+        c.weightx=1.0;//默认值为0.0
+        c.weighty=0.8;
+        JButton jButton2 = new JButton("按钮2");
+        gridbag.setConstraints(jButton2, c);
+        f.add(jButton2);
+//添加按钮3
+        c.fill = GridBagConstraints.BOTH;
+        c.gridwidth=1;
+        c.gridheight=1;
+        c.weighty=0.2;
+        JButton jButton3 = new JButton("按钮3");
+        gridbag.setConstraints(jButton3, c);
+        f.add(jButton3);
+
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setSize(500,500);
+        f.setVisible(true);
+     }
+}
+
+ 
+
+gridx,gridy —— 设置组件的位置，
+gridx设置为GridBagConstraints.RELATIVE代表此组件位于之前所加入组件的右边。
+gridy设置为GridBagConstraints.RELATIVE代表此组件位于以前所加入组件的下面。
+建议定义出gridx,gridy的位置以便以后维护程序。gridx=0,gridy=0时放在0行0列。
+
+gridwidth,gridheight —— 用来设置组件所占的单位长度与高度，默认值皆为1。
+你可以使用GridBagConstraints.REMAINDER常量，代表此组件为此行或此列的最后一个组件，而且会占据所有剩余的空间。
+
+weightx,weighty —— 用来设置窗口变大时，各组件跟着变大的比例。
+当数字越大，表示组件能得到更多的空间，默认值皆为0。
+
+anchor —— 当组件空间大于组件本身时，要将组件置于何处。
+有CENTER(默认值)、NORTH、NORTHEAST、EAST、SOUTHEAST、WEST、NORTHWEST选择。
+
+insets —— 设置组件之间彼此的间距。
+它有四个参数，分别是上，左，下，右，默认为(0,0,0,0)。
+
+ipadx,ipady —— 设置组件间距，默认值为0。
+
+GridBagLayout里的各种设置都必须通过GridBagConstraints，因此当我们将GridBagConstraints的参数都设置
+好了之后，必须new一个GridBagConstraints的对象出来，以便GridBagLayout使用。
+
+
+构造函数：
+GirdBagLayout()建立一个新的GridBagLayout管理器。
+GridBagConstraints()建立一个新的GridBagConstraints对象。
+GridBagConstraints(int gridx,int gridy,
+int gridwidth,int gridheight,
+double weightx,double weighty,
+int anchor,int fill, Insets insets,
+int ipadx,int ipady)建立一个新的GridBagConstraints对象，并指定其参数的值。

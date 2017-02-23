@@ -1,0 +1,2 @@
+异常：NoClassDefFoundError: com/mchange/v2/ser/Indirector
+原因：缺少mchange-commons-java-0.2.3.4.jar,次包必须放在WEB的lib文件夹下。

@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.tang.collection">
+
+ <class name="User" table="user">
+ 
+  <id name="userId" column="id">
+   <generator class="native"></generator>
+  </id>
+  
+  <property name="userName" type="string"></property>
+  
+  <set name="address" table="address">
+   <key column="uid"></key>
+   <element column="address" type="string"></element>
+  </set>
+  
+  <list name="addressList" table="addressList">
+   <key column="uid"></key>
+   <list-index column="idx"></list-index>
+   <element column="address" type="string"></element>
+  </list>
+  
+  <map name="addressMap" table="addressMap">
+   <key column="uid"></key>
+   <map-key type="string" column="shortName"></map-key>
+   <element column="address" type="string"></element>
+  </map>
+  
+ </class>
+ 
+</hibernate-mapping>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

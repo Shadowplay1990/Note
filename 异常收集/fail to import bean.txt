@@ -1,0 +1,3 @@
+异常：Configuration problem: Failed to import bean definitions from relative location
+原因：bean.xml循环引用问题。
+解决：在一个bean.xml不要乱引用其他的bean-*.xml文件

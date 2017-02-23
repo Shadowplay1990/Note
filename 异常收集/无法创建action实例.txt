@@ -1,0 +1,2 @@
+异常：Unable to instantiate Action, com.tang.action.EmpAction,  defined for 'empAction' in namespace '/'com.tang.action.EmpAction
+spring 配置文件里的id属性必须和struts里的class属性相对应

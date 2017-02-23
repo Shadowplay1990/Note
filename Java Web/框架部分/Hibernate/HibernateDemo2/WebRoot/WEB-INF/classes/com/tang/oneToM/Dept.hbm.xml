@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.tang.oneToM">
+ <class name="Dept" table="dept">
+ 
+  <id name="deptId">
+   <generator class="native"></generator>
+  </id>
+  
+  <property name="deptName" type="string" length="25"></property>
+  
+  <set name="employees" table="employee" inverse="true">
+   <key column="deptId"></key>
+   <one-to-many class="Employee"/>
+  </set>
+  
+ </class>
+</hibernate-mapping>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

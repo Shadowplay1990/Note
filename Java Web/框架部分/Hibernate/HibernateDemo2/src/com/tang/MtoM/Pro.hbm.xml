@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="com.tang.MtoM">
+
+ <class name="Pro" table="pro">
+ 
+  <id name="proId">
+   <generator class="native"></generator>
+  </id>
+  
+  <property name="proName" length="28" type="string"></property>
+  
+  <!--  'CREATE TABLE `pro` (\n  `proId` int(11) NOT NULL AUTO_INCREMENT,
+  \n  `proName` varchar(28) DEFAULT NULL,
+  \n  PRIMARY KEY (`proId`)\n) 
+  ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8'
+   -->
+  
+  <set name="deps" table="relation">
+   <key column="pid"></key>
+   <many-to-many column="did" class="Dep"></many-to-many>
+  </set>
+ </class>
+ 
+</hibernate-mapping>
