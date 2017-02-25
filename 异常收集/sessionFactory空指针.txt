@@ -1,0 +1,2 @@
+Junit问题？  重新BuildPath一此Junit就莫名其妙的好了。。。。。
+不能同时有@Resource 和classpathxmlapplication?有Application的时候@Resource不起作用
