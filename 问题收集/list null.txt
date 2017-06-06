@@ -1,0 +1,15 @@
+public class TestList {
+
+	@Test
+	public void test(){
+		List<String> list=new ArrayList<>();//此时的list不是null
+		
+		/*if(list==null){
+			System.out.println("list is null");//不会执行
+		}*/
+		
+		if (list.size()==0) {
+			System.out.println("list size is 0");//会执行
+		}
+	}
+}
