@@ -1,0 +1,2 @@
+<intput type="checkbox" checked="checked" value=1/> 这样会始终上传value=1
+<input type="checkbox" />只用当box被选中才能上传值

@@ -1,0 +1,519 @@
+在常规的Web编程中，有大量的动态条件查询，即用户在网页上面自由选择某些条件，程序根据用户的选择条件，动态生成SQL语句，进行查询。
+
+比如，我记得在Facebook中可以选择高级查询条件，这个就是个动态的查询了塞，我们无法预知使用多少个查询，直接书写死了在我们的Dao层显然是不服和我们的意思的塞
+
+针对这种需求，对于分层应用程序来说，Web层需要传递一个查询的条件列表给业务层对象，业务层对象获得这个条件列表之后，然后依次取出条件，构造查询语句。这里的一个难点是条件列表用什么来构造？传统上使用Map，但是这种方式缺陷很大，Map可以传递的信息非常有限，只能传递name和value，无法传递究竟要做怎样的条件运算，究竟是大于，小于，like，还是其它的什么，业务层对象必须确切掌握每条entry的隐含条件。因此一旦隐含条件改变，业务层对象的查询构造算法必须相应修改，但是这种查询条件的改变是隐式约定的，而不是程序代码约束的，因此非常容易出错。
+
+DetachedCriteria可以解决这个问题，即在web层，程序员使用DetachedCriteria来构造查询条件，然后将这个 DetachedCriteria作为方法调用参数传递给业务层对象。而业务层对象获得DetachedCriteria之后，可以在session范围内直接构造Criteria，进行查询。就此，查询语句的构造完全被搬离到web层实现，而业务层则只负责完成持久化和查询的封装即可，与查询条件构造完全解耦，非常完美！
+
+Criteria 和 DetachedCriteria 的主要区别 
+在于创建的形式不一样， Criteria 是在线的，所以它是由 Hibernate Session 进行创建的,而 DetachedCriteria 是离线的，创建时无需Session .
+DetachedCriteria的创建 
+DetachedCriteria 提供了 2 个静态方法 ，进行DetachedCriteria 实例的创建。 
+forClass(Class) 
+forEntityName(Name)
+Spring 的框架提供了对于离线查询的支持，非常的简单的使用那些方法 
+Spring 的框架提供了getHibernateTemplate().findByCriteria(detachedCriteria) 方法可以很方便地根据DetachedCriteria 来返回查询结果。Criteria的子类就是 DetachedCriteria 我们可以简单的使用就好了。
+使用到了这些我们就不得不说 Restrictions 
+是产生查询条件的工具类。Restrictions表达式如下 
+HQL运算符 QBC运算符 含义 
+= Restrictions.eq() 等于equal 
+<> Restrictions.ne() 不等于 not equal 
+ Restrictions.gt() 大于greater than 
+= Restrictions.ge() 大于等于 greater than or equal 
+< Restrictions.lt() 小于less than 
+<= Restrictions.le() 小 于 等 于 less than or equal 
+is null Restrictions.isnull() 等于空值 
+is not null Restrictions.isNotNull() 非空值 
+like Restrictions.like() 字符串模式匹配 
+and Restrictions.and() 逻辑与 
+and Restrictions.conjunction() 逻辑与 
+or Restrictions.or() 逻辑或 
+or Restrictions.disjunction() 逻辑或 
+not Restrictions.not() 逻辑非 
+in(列表) Restrictions.in() 等于列表中的某一个值 
+not in(列表) Restrictions.not(Restrictions.in()) 不等于列表中任意一个值 
+between x and y Restrictions.between() 闭区间 xy中的任意值 
+not between x and y Restrictions.not(Restrictions..between()) 小于值X 或者大于值y
+Criteria 这个也是必须说的东西嘛，翻译过来就是条件，标准之类的意思！和我们的离线的差不都 
+那么我们看看例子吧 
+查User表格中的所有资料 
+我们这个需要获取到我们的session对象哦~~线上的查询，和我们的Query类似的，但是更强大哦！
+    Criteria criteria = session.createCriteria(User.class);
+    List users = criteria.list();
+    Iterator iterator =  users.iterator();
+    while(iterator.hasNext()) {
+        User user = (User) iterator.next();
+        System.out.println(user.getId() + user.getName());           
+    }
+1
+2
+3
+4
+5
+6
+7
+1
+2
+3
+4
+5
+6
+7
+Criteria只是个容器，如果想要设定查询条件，只要使用add()方法加入Restrictions的条件限制，例如查詢age大大于20且小于40的资料。虽然我们的SQL语句也是可以完成的，但是为了更好的封装，更多的复用代码，最好还是不要直接的书写我们的SQL语句，看到了公司封装的代码，才感觉到前辈的强大无比，复用代码的灵活性非常的高！ 这里，我们可以传递无限制的Restrictions进行封装起来，非常方便的使用！
+Criteria criteria = session.createCriteria(User.class);
+criteria.add(Restrictions.gt("age", new Integer(20)));
+criteria.add(Restrictions.lt("age", new Integer(40)));
+List users = criteria.list();
+1
+2
+3
+4
+1
+2
+3
+4
+您也可以使用逻辑组合來进行查询，例如结合age等于（eq）20或（or）age为空（isNull）的条件：
+Criteria criteria = session.createCriteria(User.class);
+criteria.add(Restrictions.or(
+                   Restrictions.eq("age", new Integer(20)),
+                   Restrictions.isNull("age")
+               ));
+List users = criteria.list();
+1
+2
+3
+4
+5
+6
+1
+2
+3
+4
+5
+6
+一个单独的查询条件是org.hibernate.criterion.Criterion 接口的一个实例。
+org.hibernate.criterion.Restrictions类 定义了获得某些内置Criterion类型的工厂方法。
+
+List cats = sess.createCriteria(Cat.class)
+
+    .add( Restrictions.like("name", "Fritz%") )
+
+    .add( Restrictions.between("weight", minWeight, maxWeight) )
+
+    .list();
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+动态关联抓取 
+我们的抓取模式，对于1对多的关联的形式！是不是抓取过来呢？
+你可以使用setFetchMode()在运行时定义动态关联抓取的语义
+List cats = sess.createCriteria(Cat.class)
+
+    .add( Restrictions.like("name", "Fritz%") )
+
+    .setFetchMode("mate", FetchMode.EAGER)
+
+    .setFetchMode("kittens", FetchMode.EAGER)
+
+    .list();
+这个查询可以通过外连接抓取mate和kittens。
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+DetachedCriteria的关联查询 
+假设要通过stuName查询一个学生Student记录，可以如下：
+    DetachedCriteria dc = DetachedCriteria.forClass(Student.class);
+    dc.add(Restrictions.like("stuName", stuName, MatchMode.ANYWHERE)); 
+1
+2
+1
+2
+如果要通过Student的Team的teamName查询一个Student记录，很多人都会这么写：
+
+DetachedCriteria dc = DetachedCriteria.forClass(Student.class); 
+dc.add(Restrictions.like("team.teamName", teamName, MatchMode.ANYWHERE)); 
+1
+2
+1
+2
+遗憾的是上述程序报错，说是在Student中找不到team.teamName属性，这是可以理解的。那么如何通过teamName查找、、Student呢？ 
+可以这么写：
+
+    DetachedCriteria dc = DetachedCriteria.forClass(Student.class); 
+    dc.createAlias("team", "t"); 
+    dc.add(Restrictions.like("t.teamName", teamName, MatchMode.ANYWHERE)); 
+1
+2
+3
+1
+2
+3
+没错，就是要先建立team的引用，才能用team导航到teamName
+
+DetachedCriteria beautyCriteria = DetachedCriteria.forClass(Beauty.class, "b").;
+DetachedCriteria customerCriteria = beautyCriteria.createAlias("customers", c");
+beautyCriteria.add(Restrictions.le("b.age", new Long(20))):
+customerCriteria.add(Restrictions.eq("c.name", "Gates")):
+1
+2
+3
+4
+1
+2
+3
+4
+Department和Employee是一对多关联，查询条件为： 名称是“department”开发部门，部门里面的雇员年龄大于20岁；
+
+DetachedCriteria detachedCriteria = DetachedCriteria.forClass(Department.class);
+detachedCriteria.add(Restrictions.eq("name", "department"))
+                 .createAlias("employees", "e")
+                 .add(Restrictions.gt(("e.age"), new Integer(20)));
+List  list = this.getHibernateTemplate().findByCriteria(detachedCriteria);
+1
+2
+3
+4
+5
+1
+2
+3
+4
+5
+投影(Projections)、聚合（aggregation）和分组（grouping） 
+org.hibernate.criterion.Projections是 Projection 的实例工厂。 
+我们通过调用setProjection()应用投影到一个查询。这个的意思就是查询哪一列的意思 
+用来进行聚合操作,和sql中的聚合类似.求和/求平均值/统计记录数/…等等. 
+还有用来获取获取对象的某些属性(表字段)或属性集合.正常情况下,查询返回的是对象或对象的集合.使用投影的话就可以只返回你需要的属性值.即Hibernate不把记录封装对象了,只返回你在投影中设置的属性的值(值的集合)的数组
+List results = session.createCriteria(Cat.class)
+
+    .setProjection( Projections.rowCount() )
+
+    .add( Restrictions.eq("color", Color.BLACK) )
+
+    .list();
+1
+2
+3
+4
+5
+6
+7
+1
+2
+3
+4
+5
+6
+7
+List results = session.createCriteria(Cat.class)
+
+    .setProjection( Projections.projectionList()
+
+        .add( Projections.rowCount() )
+
+        .add( Projections.avg("weight") )
+
+        .add( Projections.max("weight") )
+
+        .add( Projections.groupProperty("color") )
+
+    )
+
+    .list();
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+在一个条件查询中没有必要显式的使用 “group by” 。某些投影类型就是被定义为 分组投影，他们也出现在SQL的group by子句中。 
+可以选择把一个别名指派给一个投影，这样可以使投影值被约束或排序所引用。下面是两种不同的 
+实现方式：
+
+List results = session.createCriteria(Cat.class)
+
+    .setProjection( Projections.alias( Projections.groupProperty("color"), "colr" ) )
+
+    .addOrder( Order.asc("colr") )
+
+    .list();
+1
+2
+3
+4
+5
+6
+7
+1
+2
+3
+4
+5
+6
+7
+List results = session.createCriteria(Cat.class)
+
+    .setProjection( Projections.groupProperty("color").as("colr") )
+
+    .addOrder( Order.asc("colr") )
+
+    .list();
+1
+2
+3
+4
+5
+6
+7
+1
+2
+3
+4
+5
+6
+7
+alias()和as()方法简便的将一个投影实例包装到另外一个 别名的Projection实例中。简而言之， 
+当你添加一个投影到一个投影列表中时 你可以为它指定一个别名：
+
+List results = session.createCriteria(Cat.class)
+
+    .setProjection( Projections.projectionList()//一个查询只能使用一个投影！这里只能这样处理啦！
+
+        .add( Projections.rowCount(), "catCountByColor" )
+
+        .add( Projections.avg("weight"), "avgWeight" )
+
+        .add( Projections.max("weight"), "maxWeight" )
+
+        .add( Projections.groupProperty("color"), "color" )
+
+    )
+
+    .addOrder( Order.desc("catCountByColor") )
+
+    .addOrder( Order.desc("avgWeight") )
+
+    .list();
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+也可以使用Property.forName()来表示投影：
+
+List results = session.createCriteria(Cat.class)
+
+    .setProjection( Projections.projectionList()
+
+        .add( Projections.rowCount().as("catCountByColor") )
+
+        .add( Property.forName("weight").avg().as("avgWeight") )
+
+        .add( Property.forName("weight").max().as("maxWeight") )
+
+        .add( Property.forName("color").group().as("color" )
+
+    )
+
+    .addOrder( Order.desc("catCountByColor") )
+
+    .addOrder( Order.desc("avgWeight") )
+
+    .list();
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+DetachedCriteria类使你在一个session范围之外创建一个查询，并且可以使用任意的 Session来执行它。
+也可以使用spring封装好的哦！
+
+DetachedCriteria query = DetachedCriteria.forClass(Cat.class)
+
+    .add( Property.forName("sex").eq('F') );
+
+//创建一个Session
+
+Session session = .;
+
+Transaction txn = session.beginTransaction();
+
+List results = query.getExecutableCriteria(session).setMaxResults(100).list();
+
+txn.commit();
+
+session.close();
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+也可以是作为子查询
+
+DetachedCriteria avgWeight = DetachedCriteria.forClass(Cat.class)
+
+    .setProjection( Property.forName("weight").avg() );
+
+session.createCriteria(Cat.class)
+
+    .add( Property.forName("weight).gt(avgWeight) )
+
+    .list();
+
+
+MatchMode.START：字符串在最前面的位置.相当于"like 'key%'"
+MatchMode.END：字符串在最后面的位置.相当于"like '%key'"
+MatchMode.ANYWHERE：字符串在中间匹配.相当于"like '%key%'"
+MatchMode.EXACT：字符串精确匹配.相当于"like 'key'"

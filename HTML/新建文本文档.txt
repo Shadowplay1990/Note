@@ -1,0 +1,19 @@
+两种属性的写法如下：
+
+ 
+
+1、<input type="text" name="name" value="xxx" disabled="true"/>
+
+2、<input type="text" name="name" value="xxx" readonly="true"/>
+
+ 
+
+这两种写法都会使显示出来的文本框不能输入文字，
+
+ 
+
+但disabled会使文本框变灰，而且通过request.getParameter("name")得不到文本框中的内容（如果有的话），
+
+ 
+
+而readonly只是使文本框不能输入，外观没有变化，而且通过request.getParameter("name")可以得到内容。

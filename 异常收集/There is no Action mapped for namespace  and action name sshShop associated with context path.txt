@@ -1,0 +1,86 @@
+There is no Action mapped for namespace [] and action name [sshShop] associated with context path []
+classes 文件夹下没有struts.xml
+struts2.5框架使用通配符指定方法（常见错误）
+
+ 
+
+在学习struts框架时经常会使用到通配符调用方法，如下：
+
+<package name="shop" namespace="/" extends="struts-default">        
+        <!-- 配置Action -->                                       
+        <actionname="user_*"  class="userAction" method="{1}">                                   
+                <result name="success">/WEB-INF/jsp/login.jsp</result>                 
+        </action>                                                          
+</package>
+                                                                                                                                                                 
+
+其中的action name="user_*"中*这个符号代表的值会传入method=“{1}”中，并对应action类的一个方法名，这样就能很大程度地减少配置文档中action的数目。
+
+ 
+
+但是在使用这种通配符方法的时候，经常会看到这样的映射错误提示
+
+Struts has detected an unhandled exception:
+Message:There is no Action mapped for namespace [/] and action name [user_login] associated with context path [/shop].
+如果看到提示的是映射问题，你可以按照映射路线排除一遍，
+
+第一步：先排查访问的链接有没有问题（细节问题）
+
+第二步：查看struts.xml的配置（仔细排查，出现问题几率很大）
+
+第三步：查看相关的action类及方法（比如return的值是不是跟配置文件中的result对应得上等）
+
+第四步：查看结果响应页面是否存在问题（出现问题的几率比较小）
+
+（具体的做法我不细讲了，网上很多优秀篇章都有提及，可自行百度）
+
+ 
+
+如果上面的四个步骤没出问题，可是还是报错，怎么办？那就可能是内部属性配置的问题了
+
+在Struts 2的核心jar包struts2-core中，有一个default.properties的默认配置文件（路径：struts-2.5.2-min\lib\org\apache\struts2\default.properties）里面配置了一些全局的信息
+
+其中有条语句是配置动态方法调用的
+
+struts.enable.DynamicMethodInvocation = true
+ 
+
+当使用动态调用方法时（action名 + 感叹号 + 方法名进行方法调用），需要将其属性改为true，
+
+当使用通配符调用语法时，建议将其属性改为false（struts2.5.2中默认是false）
+
+当我们需要将其属性改成false时，
+
+只在struts.xml配置文件中加入此句即可修改属性
+
+<constant name="struts.enable.DynamicMethodInvocation" value="false" />
+ 
+
+很多网友都说改了之后都行了，不过我换了struts2.5之后，整了好久都还是不行……
+
+最后是在配置文档struts.xml的Action中配置了
+
+<allowed-methods>Action内的方法名</allowed-methods>才成功了
+
+ 
+
+比如上面代码修改如下：
+
+复制代码
+<package name="shop" namespace="/" extends="struts-default">                                    
+        <!-- 配置Action -->                                                               
+        <action name="user_*"  class="userAction" method="{1}">                                  
+                <result name="success">/WEB-INF/jsp/login.jsp</result>                  
+                <allowed-methods>login</allowed-methods>                                      
+        </action>                                                                          
+</package>                                                                                                                                                                
+复制代码
+备注：红色代码中的login为对应Action类里面的方法名，可以加上多个方法，方法名之间用逗号隔开。
+
+ 
+
+总结：在struts2.3之前的版本，正常的配置就可以了，但在struts2.3版本之后，使用通配符调用方法时，内部会验证是否允许访问该方法，所以要加上
+
+<allowed-methods>方法名1，方法名2…</allowed-methods>代码。
+
+希望这个小知识点能帮助更多编程爱好者，在java道路上，与志同道合者共勉！

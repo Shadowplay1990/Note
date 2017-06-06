@@ -1,3 +1,13 @@
-No mapping found for dependency [type=java.lang.String, name='actionPackages'] in public void org.apache.struts2.config.ClasspathPackageProvider.setActionPackages(java.lang.String). - Class: com.opensymphony.xwork2.inject.ContainerBuilder$4
-File: ContainerBuilder.java
-解决：添加了struts2-codebehind包，去除这个包就可以了
+Unable to create requested service [org.hibernate.cache.spi.RegionFactory]
+解决：
+<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-ehcache</artifactId>
+			<version>5.2.10.Final</version>
+			<exclusions>
+				<exclusion>
+					<groupId>net.sf.ehcache</groupId>
+					<artifactId>ehcache-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>

@@ -1,0 +1,7 @@
+这个错误通常是由主键引起的。
+
+当改为uuid后就解决了，原因是native是针对Integer对象的自增是对应数据库中的Integer存入的，而这里，你写个String类型的，它就不认可了！
+
+    @GenericGenerator(name="Suuid",strategy = "uuid")
+    @Id
+    @GeneratedValue(generator = "Suuid")
