@@ -1,0 +1,2 @@
+java.lang.NoSuchMethodError: ognl.SimpleNode.isEvalChain(Lognl/OgnlContext;)Z
+SSH项目中版本太低

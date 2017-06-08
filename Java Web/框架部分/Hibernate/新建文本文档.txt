@@ -1,0 +1,19 @@
+前提条件：你的类必须继承HibernateDaoSupport
+
+HibernateTemplate提供非常多的常用方法来完成基本的操作，比如通常的增加、删除、修改、查询等操作。
+
+getHibernateTemplate和getSession的区别
+
+getHibernateTemplate已经封装好了一些基本的方法，可以直接去用，也就是template嘛，而getSession只是获取一个数据工厂的session，然后大部分方法都需要自己写，加hql语句，然后用query方法执行。
+
+HibernateTemplate的常用方法简介
+
+q void delete(Object entity)：删除指定持久化实例
+q deleteAll(Collection entities)：删除集合内全部持久化类实例
+q find(String queryString)：根据HQL查询字符串来返回实例集合
+q findByNamedQuery(String queryName)：根据命名查询返回实例集合
+q get(Class entityClass, Serializable id)：根据主键加载特定持久化类的实例
+q save(Object entity)：保存新的实例
+q saveOrUpdate(Object entity)：根据实例状态，选择保存或者更新
+q update(Object entity)：更新实例的状态，要求entity是持久状态
+q setMaxResults(int maxResults)：设置分页的大小

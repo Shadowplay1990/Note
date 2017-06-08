@@ -1,0 +1,5 @@
+
+8
+down vote
+accepted
+I've seen this sort of error whenever there's a process that's holding a lock on a file in some subfolder that's Maven is trying to clean. Check that your Tomcat instance is really stopped (look for java processes in Task Manager that shouldn't be there). I've also created this issue for myself by opening the access log in a text editor, and then forgetting to close the editor after shutting down the Tomcat and trying to run a new build.

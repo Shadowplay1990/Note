@@ -1,2 +1,3 @@
 现象：从Action访问出现404 找不到Action
-原因：客户端写的路径要根据struts.xml文件中action元素中的name属性来
+原因：1.客户端写的路径要根据struts.xml文件中action元素中的name属性来
+2.没有生成.class文件
